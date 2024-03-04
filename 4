@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+void vigenere_encrypt(char *message, char *key) {
+    int message_len = strlen(message);
+    int key_len = strlen(key);
+    int i;
+
+    for (i = 0; i < message_len; i++) {
+        if (isalpha(message[i])) {
+            char offset = isupper(message[i]) ? 'A' : 'a';
+            message[i] = ((message[i] + key[i % key_len] - 2 * offset) % 26) + offset;
+        }
+    }
+}
+
+void vigenere_decrypt(char *message, char *key) {
+    int message_len = strlen(message);
+    int key_len = strlen(key);
+    int i;
+
+    for (i = 0; i < message_len; i++) {
+        if (isalpha(message[i])) {
+            char offset = isupper(message[i]) ? 'A' : 'a';
+            message[i] = ((message[i] - key[i % key_len] + 26) % 26) + offset;
+        }
+    }
+}
+
+int main() {
+    char message[1000];
+    char key[100];
+
+    printf("Enter message to encrypt: ");
+    fgets(message, sizeof(message), stdin);
+
+    printf("Enter key: ");
+    fgets(key, sizeof(key), stdin);
+
+    message[strcspn(message, "\n")] = '\0';
+    key[strcspn(key, "\n")] = '\0';
+
+    vigenere_encrypt(message, key);
+    printf("Encrypted message: %s\n", message);
+
+    vigenere_decrypt(message, key);
+    printf("Decrypted message: %s\n", message);
+
+    return 0;
+}
+

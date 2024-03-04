@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+long long int mod_exp(long long int base, long long int exp, long long int mod) {
+    long long int result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp = exp / 2;
+    }
+    return result;
+}
+
+long long int gcd(long long int a, long long int b) {
+    long long int temp;
+    while (b != 0) {
+        temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+void generate_keys(long long int *public_key, long long int *private_key, long long int p, long long int q) {
+    long long int n = p * q;
+    long long int phi_n = (p - 1) * (q - 1);
+    long long int e = 2;
+    while (e < phi_n) {
+        if (gcd(e, phi_n) == 1)
+            break;
+        else
+            e++;
+    }
+
+    *public_key = e;
+
+    long long int d = 2;
+    while (d < phi_n) {
+        if ((d * e) % phi_n == 1)
+            break;
+        else
+            d++;
+    }
+
+    *private_key = d;
+}
+
+long long int sign_message(long long int message, long long int private_key, long long int n) {
+    return mod_exp(message, private_key, n);
+}
+
+int verify_signature(long long int signed_message, long long int public_key, long long int n, long long int original_message) {
+    long long int decrypted_message = mod_exp(signed_message, public_key, n);
+    return decrypted_message == original_message;
+}
+
+int main() {
+    long long int p = 17; 
+    long long int q = 19; 
+
+    long long int public_key, private_key;
+    generate_keys(&public_key, &private_key, p, q);
+
+    long long int message = 7;
+    printf("Original Message: %lld\n", message);
+
+    long long int signature = sign_message(message, private_key, p * q);
+    printf("Signature: %lld\n", signature);
+
+    int verification_result = verify_signature(signature, public_key, p * q, message);
+    if (verification_result)
+        printf("Signature verified successfully!\n");
+    else
+        printf("Signature verification failed!\n");
+
+    return 0;
+}
